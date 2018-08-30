@@ -1,0 +1,20 @@
+---
+
+- name: "Installing packages"
+  yum: pkg={{ item }} state=installed
+  with_items:
+  - ntp
+  - git
+  - python36u
+  - https://centos7.iuscommunity.org/ius-release.rpm #required for python3.6
+
+- name: "add bashrc"
+  copy: src=../files/bashrc dest=/etc/bashrc owner=root group=root mode=0644
+
+#- name: "removing old bashrc"
+#  shell: creates=/home/user/.bashrc_backup mv /home/user/.bashrc /home/user/.bashrc_backup
+
+- name: "copy ntp config"
+  copy: src=../files/ntp.conf dest=/etc/ntp.conf owner=root group=root mode=0644
+  notify:
+   - restart-ntp-service

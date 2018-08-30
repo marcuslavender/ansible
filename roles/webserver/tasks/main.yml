@@ -1,0 +1,24 @@
+---
+- name: "Installing packages"
+  yum: pkg={{ item }} state=installed
+  with_items:
+  - mariadb-server
+  - httpd
+  - php
+
+- name: "Remove old httpd.conf"
+  shell: creates=/etc/httpd/conf/httpd.conf.bak mv /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
+
+- name: "copy apache2 config"
+  copy: src=../files/httpd.conf dest=/etc/httpd/conf/httpd.conf owner=root group=root mode=0644
+  notify:
+     - restart-httpd-service
+
+- name: "Remove old my.cnf"
+  shell: creates=/etc/my.cnf.bak mv /etc/my.cnf /etc/my.cnf.bak
+
+- name: "copy mysql config"
+  copy: src=../files/my.cnf dest=/etc/my.cnf owner=root group=mysql mode=0644
+  notify: 
+    - restart-mysql-service
+

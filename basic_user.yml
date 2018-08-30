@@ -1,0 +1,10 @@
+---
+- hosts: 10.220.224.41
+  remote_user: root
+  vars:
+	NORMAL_USER_NAME: "{{ web }}"
+ tasks: 
+	- name: "Create a secondary, non-root user"
+	  user: name={{ NORMAL_USER_NAME }}
+		password='$6$rounds=656000$vW77UJ6tYs/JC16r$1XKNzCSBqIPzd8FtR8eKwibRNGrOBB7uAVEWRTgQD4l/3bYrTBLC5BR0SRsTZ2DKsiWLPbfoS3fNfdKAeBaHh'
+		shell=/bin/bash
