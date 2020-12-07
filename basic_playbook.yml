@@ -4,6 +4,8 @@
   become: true
   roles:
    - basics
+  vars:
+     users: provision
 
 - name: "apply web server role"
   hosts: webservers

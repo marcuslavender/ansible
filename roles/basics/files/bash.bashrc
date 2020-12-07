@@ -16,7 +16,10 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
 fi
 
 # set a fancy prompt (non-color, overwrite the one in /etc/profile)
-PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+# but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
+if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
+  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
 
 # Commented out, don't overwrite xterm -T "title" -n "icontitle" by default.
 # If this is an xterm set the title to user@host:dir
@@ -67,10 +70,3 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 	}
 fi
 
-if [ -f /etc/bash_preexec ]; then
-    # source preexec and precmd hook functions for Bash
-	# If you have anything that's using the Debug Trap or PROMPT_COMMAND 
-	# change it to use preexec or precmd 
-	# See also https://github.com/rcaloras/bash-preexec
-    . /etc/bash_preexec
-fi

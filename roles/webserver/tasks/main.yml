@@ -1,10 +1,11 @@
 ---
 - name: "Installing packages"
-  yum: pkg={{ item }} state=installed
-  with_items:
-  - mariadb-server
-  - httpd
-  - php
+  apt: 
+    name:
+        - mariadb-server
+        - httpd
+        - php
+    state: present
 
 - name: "Remove old httpd.conf"
   shell: creates=/etc/httpd/conf/httpd.conf.bak mv /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
