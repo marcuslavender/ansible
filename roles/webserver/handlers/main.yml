@@ -1,5 +1,5 @@
-- name: restart-httpd-service
-  service: name=httpd state=restarted
+- name: restart-apache2-service
+  service: name=apache2 state=restarted
 
 - name: restart-mysql-service
-  service: name=mysqld state=restarted
+  service: name=mysql state=restarted

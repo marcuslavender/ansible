@@ -2,24 +2,24 @@
 - name: "Installing packages"
   apt: 
     name:
-        - mariadb-server
-        - httpd
+        - mysql-server
+        - apache2
         - php
     state: present
 
 - name: "Remove old httpd.conf"
-  shell: creates=/etc/httpd/conf/httpd.conf.bak mv /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.bak
+  shell: creates=/etc/apache2/apache2.bak mv /etc/apache2/apache2.conf /etc/apache2/apache2.conf.bak
 
 - name: "copy apache2 config"
-  copy: src=../files/httpd.conf dest=/etc/httpd/conf/httpd.conf owner=root group=root mode=0644
+  copy: src=../files/apache2.conf dest=/etc/apache2/apache2.conf owner=root group=root mode=0644
   notify:
-     - restart-httpd-service
+     - restart-apache2-service
 
 - name: "Remove old my.cnf"
-  shell: creates=/etc/my.cnf.bak mv /etc/my.cnf /etc/my.cnf.bak
+  shell: creates=/etc/mysql/mysql.conf.d/mysqld.cnf.bak mv /etc/mysql/mysql.conf.d/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf.bak
 
 - name: "copy mysql config"
-  copy: src=../files/my.cnf dest=/etc/my.cnf owner=root group=mysql mode=0644
+  copy: src=../files/mysqld.cnf dest=/etc/mysql/mysql.conf.d/mysqld.cnf owner=root group=mysql mode=0644
   notify: 
     - restart-mysql-service
 
