@@ -1,0 +1,190 @@
+---
+# tasks file for kodecloud_project
+
+# configure static IP
+
+#- name: "Copy SSH key to server"
+#  lineinfile:
+#    line: "{{ ssh_pubkey }}"
+#    path: /home/{{ user }}/authorized_keys
+#    state: present
+
+# Configure Static IP
+- name: "configure networking"
+  lineinfile:
+    state: present
+    path: /etc/sysconfig/network-scripts/{{ interface }}
+    line: IPADDR={{ ipaddr }}
+
+# Add user to sudoers
+- name: "configure sudoers"
+  lineinfile:
+    state: present
+    path: /etc/sudoers.d/provision
+    line: "{{ sudoers }}"
+    create: yes
+    mode: 0644
+
+# Install required packagess
+- name: "install the latest version of Apache and MariaDB"
+  dnf: 
+     name: 
+        - firewalld
+        - httpd
+        - mariadb-server   
+        - php
+        - php-mysqlnd  
+        - git
+        - python3-pip
+     state: present 
+  
+
+# install pyMySQL using pip
+
+- name: " install pyMySQL"
+  pip: 
+     name:
+          - PyMySQL 
+     
+
+  # Start firewalld service 
+#- name: "start-firewalld-service"
+#  systemd: 
+#        name: firewalld
+#        state: restarted
+#        enabled: yes
+        
+
+
+
+
+
+
+# configure firewall for mysql
+
+- name: "configure firewall for database"
+  ansible.posix.firewalld:
+                          permanent: yes
+                          port: "3306/tcp"
+                          state: enabled
+                          zone: public 
+  
+  # reload firewalld service 
+#- name: "start-firewalld-service"
+#  systemd: 
+#        name: firewalld
+#        state: reload
+#        enabled: yes
+      
+
+
+# start database service
+#- name: "start-database-service"
+#  systemd: 
+#        name: mariadb
+#        state: restarted
+#        enabled: yes
+        
+
+# configure database 
+
+#- name: "configure database"
+# shell: 
+#      executable: /usr/bin/mysql
+#      cmd:
+#         - CREATE DATABASE ecomdb;
+#         - CREATE USER 'ecomuser'@'localhost' IDENTIFIED BY 'ecompassword';
+#         - GRANT ALL PRIVILEGES ON *.* TO 'ecomuser'@'localhost';
+#         - FLUSH PRIVILEGES;
+
+
+ # create database 
+
+- name: "create database"
+  mysql_db:
+           name: ecomdb
+           state: present
+
+ # configure database user
+
+- name: "configure database user"
+  mysql_user:
+           name: ecomuser
+           password: "{{ userpassword }}"
+           priv: ecomdb.*:CREATE,SELECT,INSERT,UPDATE,DELETE,DROP
+           state: present
+ 
+
+
+# copy mysql script to load data to remote_user
+
+- name: "copy sql script to remote server" 
+  copy:
+      src: ../files/db-load-script.sql
+      dest: /tmp/db-load-script.sql
+      owner: "{{ users }}" 
+      group: wheel 
+      mode: 0644
+
+
+# load database data
+
+- name: "load database data"
+  become: yes
+  shell: /usr/bin/mysql -u ecomuser -p{{ userpassword }} < /tmp/db-load-script.sql
+       
+       #cmd: "cat mysql < db-load-script.sql"
+
+
+# configure firewall for webserver
+
+
+- name: "configure http for database"
+  ansible.posix.firewalld:
+                          permanent: yes
+                          port: "80/tcp"
+                          state: enabled
+                          zone: public 
+
+
+
+# configure httpd 
+
+- name: "Change index.html to index.php"
+  command: 
+          cmd: sudo /usr/bin/sed -i 's/index.html/index.php/g' /etc/httpd/conf/httpd.conf
+
+
+# Start httpd 
+
+- name: "restart httpd service"
+  command: 
+         cmd: 'echo restarting httpd service'
+  notify: "restart-httpd-service"
+
+
+# Download code 
+- name: "Check if code exists"
+  shell: "if [ -f /var/www/html/index.php ]; then echo 'present'; fi"
+  register: path
+
+- name: "Download github code"
+  command: 
+         cmd: /usr/bin/git clone https://github.com/kodekloudhub/learning-app-ecommerce.git /var/www/html/
+  args: 
+      chdir: /var/www/html
+  when: 'path.stdout.find("present") == -1'
+  
+
+# Update index.php
+
+- name: "update index.php to connect to the correct database"
+  command: 
+         cmd: /usr/bin/sudo sed -i 's/172.20.1.101/localhost/g' /var/www/html/index.php
+
+
+# test webserver is serving azure_rm_containerinstance
+- name: "curl test"
+  command: 
+         cmd: /usr/bin/curl http://localhost
+         

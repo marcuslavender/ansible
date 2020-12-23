@@ -1,0 +1,9 @@
+---
+# vars file for kodecloud_project
+
+  users: "provision"
+  ipaddr: "192.168.1.125"
+  interface: "ifcfg-ens33"
+  sudoers: "provision ALL = (ALL) ALL"
+  userpassword: "ecompassword"
+  index_file: "index.php"

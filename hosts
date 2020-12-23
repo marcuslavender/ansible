@@ -49,4 +49,5 @@ ubuntu2
 # leading 0s:
 
 ## db-[99:101]-node.example.com
-
+[kodekloud]
+192.168.1.125

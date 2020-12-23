@@ -1,0 +1,24 @@
+---
+# handlers file for kodecloud_project
+
+
+# Start firewalld service 
+- name: "start-firewalld-service"
+  systemd: 
+        name: firewalld
+        state: restarted
+        enabled: yes
+
+
+- name: "start-database-service"
+  systemd: 
+        name: mariadb
+        state: restarted
+        enabled: yes
+
+
+- name: "restart-httpd-service"
+  systemd: 
+        name: httpd
+        state: restarted
+        enabled: yes

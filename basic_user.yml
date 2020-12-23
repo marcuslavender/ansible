@@ -1,11 +1,13 @@
 ---
-- hosts: 192.168.1.184
+- hosts: ubuntu2
   become: True
   vars:
-	NORMAL_USER_NAME: "{{ web }}"
- tasks: 
-	- name: "Create a secondary, non-root user"
-	  user: name={{ NORMAL_USER_NAME }}
-		password='test'
-		shell=/bin/bash
-        home=/home/web
+     NORMAL_USER_NAME: web 
+     PASSWORD: '$6$rounds=656000$I1r3SNwgYKZbU/va$AhflXcwoBdkXJdliRJjsmTtXJLU1AIxbncEL2Gmg32PNZYvqX7r7I3N3IBvOd0CCybN5E/RyJNYEqNny.tiNI/'
+  tasks: 
+    - name: "Create a secondary, non-root user"
+      user: 
+       name={{ NORMAL_USER_NAME }}
+       password={{ PASSWORD }}
+       shell=/bin/bash
+       home=/home/web
